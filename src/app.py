@@ -1,6 +1,8 @@
 from fred import fred
+from parser import parser
 
 fr = fred()
-rdf = fr.get_rdf('the cat is on the table')
+rdf = fr.get_rdf('Who commissioned a component of a system?')
 
-print(rdf)
+parser = parser()
+parser.parse(rdf)
