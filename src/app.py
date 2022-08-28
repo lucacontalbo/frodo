@@ -1,8 +1,11 @@
-from fred import fred
-from parser import parser
+from fred import Fred
+from parser import Parser
+from tester import Tester
 
-fr = fred()
-rdf = fr.get_rdf('Who commissioned a component of a system?')
+fred = Fred()
+parser = Parser()
 
-parser = parser()
+#tester = Tester(fred,parser)
+#tester.test()
+rdf = fred.get_rdf(['Who commissioned the component of a system?'])
 parser.parse(rdf)
