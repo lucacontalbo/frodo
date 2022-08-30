@@ -1,6 +1,8 @@
 from subprocess import check_output
 import subprocess
 
+AUTO = False
+
 class Fred:
 	def __init__(self):
 		with open('../token') as f:
@@ -12,5 +14,12 @@ class Fred:
 		#TODO: suppress output
 		rdfs = []
 		for text in lst_text:
-			rdfs.append(subprocess.Popen('curl -G -H "Authorization: Bearer '+self.token+' " -H "Accept: application/rdf+xml" --data-urlencode text="'+text+'" http://wit.istc.cnr.it/stlab-tools/fred',shell=True, stdout=subprocess.PIPE).stdout.read().decode("utf-8"))
+			if AUTO:
+				rdfs.append(subprocess.Popen('curl -G -H "Authorization: Bearer '+self.token+' " -H "Accept: application/rdf+xml" --data-urlencode text="'+text+'" http://wit.istc.cnr.it/stlab-tools/fred',shell=True, stdout=subprocess.PIPE).stdout.read().decode("utf-8"))
+			else:
+				for text in lst_text:
+					rdf = text.replace(' ','')
+					with open('./saved_rdfs/{0}'.format(rdf)) as f:
+						rdf = ''.join(f.readlines())
+						rdfs.append(rdf)
 		return rdfs
