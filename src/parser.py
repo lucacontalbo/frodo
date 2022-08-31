@@ -78,9 +78,46 @@ class Parser:
 
 
 	def get_periphrastic_relations(self):
-		periphrastic = self.graph.triples((None,RDF.type,self.owl.ObjectProperty))
-		#TODO: filter by fred's namespace
-		return periphrastic
+		filtered_periphrastic = []
+		periphrastic = list(self.graph.triples((None,RDF.type,self.owl.ObjectProperty)))
+		for triple in periphrastic:
+			if self.fred in triple[0]:
+				filtered_periphrastic.append(triple[0])
+		return list(set(filtered_periphrastic)) #deleting duplicate entries
+
+	"""
+	get_role:
+	Input: el -> frame_occurrence
+	       role_type: agentive for returning agentive role, passive for returning passive role
+	Output: passive instance, class of the passive instance and passive class name (or agentive based on role_type)
+	"""
+
+	def get_role(self,el,role_type="agentive"):
+		assert role_type == "agentive" or role_type == "passive"
+		if role_type == "agentive":
+			agentive_roles = self.get_agentive_role(el)
+			class_agentive_roles = list_map(self.graph.objects,agentive_roles,predicate=RDF.type)
+			agentive_name = class_agentive_roles[0].split('#')[1]
+			return agentive_roles, class_agentive_roles, agentive_name
+		elif role_type == "passive":
+			passive_roles = self.get_passive_role(el) #passive role associated to n-ary instance
+			class_passive_roles = list_map(self.graph.objects,passive_roles,predicate=RDF.type) #TODO: can be made easier: maybe there is one passive role per n-ary relation?
+			passive_name = class_passive_roles[0].split('#')[1] #name of the passive class
+			return passive_roles, class_passive_roles, passive_name
+
+
+	def change_name_n_ary_class(self,superclass,superclass_name):
+		sub = list(self.graph.predicate_objects(superclass))
+		obj = list(self.graph.subject_predicates(superclass))
+
+		#remove every occurrence of n-ary class as subject and object
+		self.graph.remove((superclass,None,None))
+		self.graph.remove((None,None,superclass))
+
+		for p,o in sub: #change existing occurrences of the n-ary class
+			self.graph.add((URIRef(self.fred+superclass_name),p,o))
+		for s,p in obj:
+			self.graph.add((s,p,URIRef(self.fred+superclass_name)))
 
 	"""
 	n_ary_parsing: base function applying the first step of fred -> frodo's conversion
@@ -93,32 +130,15 @@ class Parser:
 			superclass = list(self.graph.objects(el,RDF.type))[0] #n-ary class
 			superclass_name = superclass.split('#')[1]
 
-			passive_roles = self.get_passive_role(el) #passive role associated to n-ary instance
-			class_passive_roles = list_map(self.graph.objects,passive_roles,predicate=RDF.type) #TODO: can be made easier: maybe there is one passive role per n-ary relation?
-			passive_name = class_passive_roles[0].split('#')[1] #name of the passive class
-
-			agentive_roles = self.get_agentive_role(el)
-			class_agentive_roles = list_map(self.graph.objects,agentive_roles,predicate=RDF.type)
-			agentive_name = class_agentive_roles[0].split('#')[1]
-
-			sub,obj = [],[]
-			sub.append(self.graph.predicate_objects(superclass))
-			obj.append(self.graph.subject_predicates(superclass))
-			sub = list(sub[0]) #TODO: can be refactored
-			obj = list(obj[0])
-
-			#remove every occurrence of n-ary class as subject and object
-			self.graph.remove((superclass,None,None))
-			self.graph.remove((None,None,superclass))
-
 			if superclass_name[-1] in VOWELS:
 				superclass_name = superclass_name[:-1]
 			superclass_name+='ing'
 
-			for p,o in sub: #change existing occurrences of the n-ary class
-				self.graph.add((URIRef(self.fred+superclass_name),p,o))
-			for s,p in obj:
-				self.graph.add((s,p,URIRef(self.fred+superclass_name)))
+
+			passive_roles, class_passive_roles, passive_name = self.get_role(el,role_type="passive")
+			agentive_roles, class_agentive_roles, agentive_name = self.get_role(el,role_type="agentive")
+
+			self.change_name_n_ary_class(superclass,superclass_name)
 
 			#add n-ary class
 			self.graph.add((URIRef(self.fred+passive_name+superclass_name),RDFS.subClassOf,URIRef(self.fred+superclass_name)))
@@ -179,8 +199,28 @@ class Parser:
 
 		#TODO: change class namespaces to frodo namespaces
 
+	def change_periphrastic_property_name(self,properties):
+		for prop in properties:
+			pred = list(self.graph.triples((None,prop,None)))
+
+			for triple in pred:
+				passive_class = list(self.graph.triples((triple[2],RDF.type,None)))[0][2]
+				new_pred_name = triple[1]+passive_class.split('#')[1]
+				for s,p,o in self.graph.triples((triple[1],None,None)):
+					self.graph.add((new_pred_name,p,o))
+				for s,p,o in self.graph.triples((None,triple[1],None)):
+					self.graph.add((s,new_pred_name,o))
+				for s,p,o in self.graph.triples((None,None,triple[1])):
+					self.graph.add((s,p,new_pred_name))
+
+				self.graph.remove((triple[1],None,None))
+				self.graph.remove((None,triple[1],None))
+				self.graph.remove((None,None,triple[1]))
+
 	def periphrastic_parsing(self):
 		periphrastic_relations = self.get_periphrastic_relations()
+		#print(periphrastic_relations)
+		self.change_periphrastic_property_name(periphrastic_relations)
 		#change relation name following template described in paper
 		#change the involved class namespaces to frodo namespace
 		#define range axioms
@@ -195,6 +235,7 @@ class Parser:
 	def parse(self,rdf):
 		for el in rdf:
 			self.graph.parse(data=el, format="application/rdf+xml")
-			self.n_ary_parsing()
 			self.periphrastic_parsing()
+			self.n_ary_parsing()
 			print(self.graph.serialize(format="turtle"))
+		return self.graph.serialize(format="xml")

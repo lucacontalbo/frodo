@@ -19,7 +19,7 @@ class Fred:
 			else:
 				for text in lst_text:
 					rdf = text.replace(' ','')
-					with open('./saved_rdfs/{0}'.format(rdf)) as f:
+					with open('./saved_rdfs/{}'.format(rdf)) as f:
 						rdf = ''.join(f.readlines())
 						rdfs.append(rdf)
 		return rdfs
