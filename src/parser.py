@@ -7,6 +7,10 @@ import pprint
 VOWELS = ['a','e','i','o','u','A','E','I','O','U']
 
 class Parser:
+	"""
+	This class performs the parsing fred -> frodo explained in frodo's paper
+	"""
+
 	def __init__(self):
 		self.fred = Namespace("http://www.ontologydesignpatterns.org/ont/fred/domain.owl#")
 		self.dul = Namespace("http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#")
@@ -24,8 +28,15 @@ class Parser:
 		self.graph.bind('earmark',URIRef("http://www.essepuntato.it/2008/12/earmark#"),False)
 		self.graph.bind('fred_pos',URIRef("http://www.ontologydesignpatterns.org/ont/fred/pos.owl#"),False)
 
-		self.agentive = [self.vn_data.Agent, self.vn_data.Actor, self.vn_data.Cause, self.vn_data.Stimulus]
-		self.passive = [self.vn_data.Patient, self.vn_data.Experiencer, self.vn_data.Material, self.vn_data.Result, self.vn_data.Product]
+		self.agentive = [self.vn_data.Agent, self.vn_data.Actor, self.vn_data.Cause, self.vn_data.Stimulus] #list of possible agentive roles
+		self.passive = [self.vn_data.Patient, self.vn_data.Experiencer, self.vn_data.Material, self.vn_data.Result, self.vn_data.Product] #list of possible passive roles
+
+	"""
+	get_frame_occ_list: recursive function which finds the instances of frame occurrences. Read Frodo's paper for the definition of frame occurrence
+	Input: object(optional) -> the input is a class, treated as an object when looking for triples. The parameter is ONLY used for the recursion
+				   hence this function MUST be called without the parameter for its intended use.
+	Output: list of frame occurrences
+	"""
 
 	def get_frame_occ_list(self,object=None):
 		list = []
@@ -39,6 +50,12 @@ class Parser:
 				list.append(s)
 		return list
 
+	"""
+	get_passive_role:
+	Input: frame occurrence
+	Output: passive role
+	"""
+
 	def get_passive_role(self,frame_occurrence):
 		passive = []
 		for role in self.passive:
@@ -46,6 +63,10 @@ class Parser:
 			if len(passive_roles) != 0:
 				passive.append(passive_roles[0])
 		return passive
+
+	"""
+	get_agentive_role: same as get_passive_role, but for agents
+	"""
 
 	def get_agentive_role(self,frame_occurrence):
 		agentive = []
@@ -61,7 +82,12 @@ class Parser:
 		#TODO: filter by fred's namespace
 		return periphrastic
 
-	def n_ary_parsing(self,object=None):
+	"""
+	n_ary_parsing: base function applying the first step of fred -> frodo's conversion
+	The function has no input and output, since it modifies self.graph
+	"""
+
+	def n_ary_parsing(self):
 		frame_occurrences = self.get_frame_occ_list()
 		for el in frame_occurrences:
 			superclass = list(self.graph.objects(el,RDF.type))[0] #n-ary class
@@ -159,6 +185,12 @@ class Parser:
 		#change the involved class namespaces to frodo namespace
 		#define range axioms
 		#define inverse relations
+
+	"""
+	parse: public function called for fred -> frodo's conversion
+	Input: RDF/XML fred graph
+	Output: RDF/XML frodo graph
+	"""
 
 	def parse(self,rdf):
 		for el in rdf:
