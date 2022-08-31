@@ -1,7 +1,7 @@
 from subprocess import check_output
 import subprocess
 
-AUTO = False
+AUTO = False #True: queries fred to obtain rdf, False: takes the rdf graph from file
 
 class Fred:
 	def __init__(self):
