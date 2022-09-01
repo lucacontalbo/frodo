@@ -17,6 +17,7 @@ class Parser:
 		self.owl = Namespace("http://www.w3.org/2002/07/owl#")
 		self.vn_data = Namespace("http://www.ontologydesignpatterns.org/ont/vn/abox/role/")
 		self.fred_pos = Namespace("http://www.ontologydesignpatterns.org/ont/fred/pos.owl#")
+		self.frodo = Namespace("https://w3id.org/stlab/ontology/")
 
 		self.graph = Graph()
 
@@ -27,6 +28,7 @@ class Parser:
 		self.graph.bind('semiotics',URIRef("http://ontologydesignpatterns.org/cp/owl/semiotics.owl#"),False)
 		self.graph.bind('earmark',URIRef("http://www.essepuntato.it/2008/12/earmark#"),False)
 		self.graph.bind('fred_pos',URIRef("http://www.ontologydesignpatterns.org/ont/fred/pos.owl#"),False)
+		self.graph.bind('frodo',URIRef("https://w3id.org/stlab/ontology/"),False)
 
 		self.agentive = [self.vn_data.Agent, self.vn_data.Actor, self.vn_data.Cause, self.vn_data.Stimulus] #list of possible agentive roles
 		self.passive = [self.vn_data.Patient, self.vn_data.Experiencer, self.vn_data.Material, self.vn_data.Result, self.vn_data.Product] #list of possible passive roles
@@ -206,25 +208,36 @@ class Parser:
 			for triple in pred:
 				passive_class = list(self.graph.triples((triple[2],RDF.type,None)))[0][2]
 				new_pred_name = triple[1]+passive_class.split('#')[1]
+				splitted_new_pred_name = new_pred_name.split('#')
+				splitted_new_pred_name[1] = splitted_new_pred_name[1][0].upper()+splitted_new_pred_name[1][1:]
+				inverse_pred_name = URIRef(splitted_new_pred_name[0]+"#is{}Of".format(splitted_new_pred_name[1]))
+
 				for s,p,o in self.graph.triples((triple[1],None,None)):
 					self.graph.add((new_pred_name,p,o))
 				for s,p,o in self.graph.triples((None,triple[1],None)):
 					self.graph.add((s,new_pred_name,o))
+					self.graph.add((o,inverse_pred_name,s)) #adding inverse relation
 				for s,p,o in self.graph.triples((None,None,triple[1])):
 					self.graph.add((s,p,new_pred_name))
 
-				self.graph.remove((triple[1],None,None))
+				self.graph.remove((triple[1],None,None)) #removing old triples
 				self.graph.remove((None,triple[1],None))
 				self.graph.remove((None,None,triple[1]))
 
+				self.graph.add((new_pred_name,RDFS.domain,self.owl.Thing)) #domain and range axioms
+				self.graph.add((new_pred_name,RDFS.range,passive_class))
+
+				self.graph.add((inverse_pred_name,RDF.type,self.owl.ObjectProperty)) #type, domain and range axioms for inverse
+				self.graph.add((inverse_pred_name,RDFS.domain,passive_class))
+				self.graph.add((inverse_pred_name,RDFS.range,self.owl.Thing))
+
+				self.graph.add((new_pred_name,self.owl.inverseOf,inverse_pred_name))
+				self.graph.add((inverse_pred_name,self.owl.inverseOf,new_pred_name))
+
 	def periphrastic_parsing(self):
 		periphrastic_relations = self.get_periphrastic_relations()
-		#print(periphrastic_relations)
 		self.change_periphrastic_property_name(periphrastic_relations)
-		#change relation name following template described in paper
 		#change the involved class namespaces to frodo namespace
-		#define range axioms
-		#define inverse relations
 
 	"""
 	parse: public function called for fred -> frodo's conversion
