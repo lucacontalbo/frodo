@@ -5,30 +5,41 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 class Rdf2Graph:
-	def __init__(self):
-		pass
+	"""
+	SAVE: boolean value indicating whether to save the file produced by graphviz
+	"""
+	def __init__(self,save_path):
+		self.save_path = save_path
+		self.format2format = { #maps rapper formats to graphviz formats
+			"xml": "rdfxml",
+			"nt": "ntriples",
+			"ttl": "turtle"
+		}
 
-	def get_png(self,rdf,from_format='xml',to_format='png',file_name=''):
-		rdf = rdf.split()
-		rdf = '+'.join(rdf)
-		if file_name != '':
-			file_name = "graph_png/"+file_name
-			#file_name += ".{}".format(to_format)
-			subprocess.Popen("wget 'http://www.ldf.fi/service/rdf-grapher?rdf={}&from={}&to={}' -O {}".format(rdf,from_format,to_format,file_name),shell=True, stdout=subprocess.PIPE).stdout.read().decode("utf-8")
-			print("http://www.ldf.fi/service/rdf-grapher?rdf={}&from={}&to={}".format(rdf,from_format,to_format))
-			self.visualize(file_name)
-		else: #result won't be saved
-			file_name = "tmp.png"
-			subprocess.Popen("wget 'http://www.ldf.fi/service/rdf-grapher?rdf={}&from={}&to={}' -O {}".format(rdf,from_format,to_format,"tmp"),shell=True, stdout=subprocess.PIPE).stdout.read().decode("utf-8")
-			self.visualize(file_name)
-			os.remove(file_name)
+	def get_save_path(self):
+		return self.save_path
 
-	def visualize(self,file_name):
-		"""print(file_name)
-		img = mpimg.imread(file_name)
-		plt.imshow(img)
-		plt.show()"""
-		from PIL import Image
+	"""
+	This function uses rapper (Raptor) and Graphviz utility to visualize the graph,
+	by translating the rdf to dot notation and then visualizing it.
 
-		image = Image.open(file_name)
-		image.show()
+	rdf: rdf graph as string
+	from_format: rapper input format
+	to_format: graphviz output format
+	filename: filename used to save the file
+	"""
+
+	def visualize(self,rdf,from_format="rdf"):
+		splitted_save_path = self.save_path.split('.')
+		file_name, to_format = splitted_save_path[0], splitted_save_path[1]
+
+		rapper_input_format = self.format2format[from_format]
+		with open("tmp.{}".format(from_format),'w') as f:
+			f.write(rdf)
+		subprocess.Popen("rapper -i {} -o dot tmp.{} > tmp.dot".format(rapper_input_format,from_format),shell=True, stdout=subprocess.PIPE).stdout.read().decode("utf-8")
+		subprocess.Popen("dot -T{0} tmp.dot > view_graph/{1}.{0}".format(to_format,file_name),shell=True, stdout=subprocess.PIPE).stdout.read().decode("utf-8")
+		print("Created file view_graph/{}.{}".format(file_name,to_format))
+		#subprocess.Popen("evince view_graph/{}.{}".format(file_name,to_format),shell=True, stdout=subprocess.PIPE).stdout.read().decode("utf-8")
+
+		os.remove("tmp.{}".format(from_format))
+		os.remove("tmp.dot")
