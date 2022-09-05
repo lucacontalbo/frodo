@@ -9,9 +9,9 @@ class Tester:
 
 	def test(self):
 		rdf = self.fred.get_rdf([self.competency_question])
-		print(rdf)
 		frodo_rdf = self.parser.parse(rdf)
-		print("----- OBTAINED ONTOLOGY -----")
-		print(frodo_rdf)
-		if self.rdf2graph.get_save_path() != '':
-			self.rdf2graph.visualize(frodo_rdf,self.parser.get_outtype())
+		if frodo_rdf != None:
+			print("----- OBTAINED ONTOLOGY -----")
+			print(frodo_rdf)
+			if self.rdf2graph.get_save_path() != '':
+				self.rdf2graph.visualize(frodo_rdf,self.parser.get_outtype())

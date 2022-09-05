@@ -12,13 +12,16 @@ class Parser:
 	This class performs the parsing fred -> frodo explained in frodo's paper
 	"""
 
-	def __init__(self,outtype):
+	def __init__(self,outtype,simplify):
 		self.fred = Namespace("http://www.ontologydesignpatterns.org/ont/fred/domain.owl#")
 		self.dul = Namespace("http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#")
 		self.owl = Namespace("http://www.w3.org/2002/07/owl#")
 		self.vn_data = Namespace("http://www.ontologydesignpatterns.org/ont/vn/abox/role/")
 		self.fred_pos = Namespace("http://www.ontologydesignpatterns.org/ont/fred/pos.owl#")
 		self.frodo = Namespace("https://w3id.org/stlab/ontology/")
+		self.boxer = Namespace("http://www.ontologydesignpatterns.org/ont/boxer/boxer.owl#")
+		self.semiotics = Namespace("http://ontologydesignpatterns.org/cp/owl/semiotics.owl#")
+		self.earmark = Namespace("http://www.essepuntato.it/2008/12/earmark#")
 
 		self.graph = Graph()
 
@@ -30,11 +33,13 @@ class Parser:
 		self.graph.bind('fred_pos',URIRef("http://www.ontologydesignpatterns.org/ont/fred/pos.owl#"),False)
 		self.graph.bind('frodo',URIRef("https://w3id.org/stlab/ontology/"),False)
 		self.graph.bind('fred',URIRef("http://www.ontologydesignpatterns.org/ont/fred/domain.owl#"),False)
+		self.graph.bind('boxer',URIRef("http://www.ontologydesignpatterns.org/ont/boxer/boxer.owl#"),False)
 
-		self.agentive = [self.vn_data.Agent, self.vn_data.Actor, self.vn_data.Cause, self.vn_data.Stimulus] #list of possible agentive roles
-		self.passive = [self.vn_data.Patient, self.vn_data.Experiencer, self.vn_data.Material, self.vn_data.Result, self.vn_data.Product] #list of possible passive roles
+		self.agentive = [self.vn_data.Agent, self.vn_data.Actor, self.vn_data.Cause, self.vn_data.Stimulus, self.boxer.agent] #list of possible agentive roles
+		self.passive = [self.vn_data.Patient, self.vn_data.Experiencer, self.vn_data.Material, self.vn_data.Result, self.vn_data.Product, self.boxer.patient] #list of possible passive roles
 
 		self.outtype = outtype
+		self.simplify = simplify
 
 	def get_outtype(self):
 		return self.outtype
@@ -128,10 +133,57 @@ class Parser:
 			self.graph.add((s,p,URIRef(self.frodo+superclass_name)))
 
 	def add_labels(self):
-		for s,p,o in self.graph.triples((None,RDF.type,self.owl.Class)):
+		for s,p,o in self.graph.triples((None,None,None)):
 			if self.frodo in s:
 				label = s.rsplit('/',1)[1]
 				self.graph.add((s,RDFS.label,Literal(label)))
+
+	def change_agentive_passive_namespace(self, frame_occurrence):
+		def remove_class_or_instance(self,toremove):
+			sub = list(self.graph.predicate_objects(toremove))
+			obj = list(self.graph.subject_predicates(toremove))
+
+
+			self.graph.remove((toremove,None,None)), self.graph.remove((None,None,toremove))
+
+			return sub,obj
+
+		def change_namespace(self,tochange):
+			sub, obj = remove_class_or_instance(self,tochange)
+			new_instance = URIRef(get_new_namespace(tochange,self.frodo))
+
+			for p,o in sub:
+				self.graph.add((new_instance,p,o))
+			for s,p in obj:
+				self.graph.add((s,p,new_instance))
+
+			return new_instance
+
+		agentive,class_agentive,_ = self.get_role(frame_occurrence,"agentive")
+		new_instance = change_namespace(self,agentive[0])
+
+		#class_agentive = self.graph.triples((new_instance,RDF.type,None))[2]
+		change_namespace(self,class_agentive[0])
+
+		passive,class_passive,_ = self.get_role(frame_occurrence,"passive")
+		new_instance = change_namespace(self,passive[0])
+
+		#class_passive = self.graph.triples((new_instance,RDF.type,None))[2]
+		change_namespace(self,class_passive[0])
+
+	def apply_simplification(self):
+		def delete_offsets(self,offset):
+			triples = self.graph.triples((offset,None,None))
+			for s,p,o in list(triples):
+				if p != self.semiotics.denotes:
+					delete_offsets(self,o)
+				self.graph.remove((s,p,o))
+				if len(list(self.graph.triples((None,p,None)))) == 0:
+					self.graph.remove((p,None,None))
+
+		offsets = list(self.graph.subjects(None,self.earmark.PointerRange))
+		for el in offsets:
+			delete_offsets(self,el)
 
 	"""
 	n_ary_parsing: base function applying the first step of fred -> frodo's conversion
@@ -211,7 +263,11 @@ class Parser:
 			self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node1))
 			self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node2))
 
+			#self.change_agentive_passive_namespace(el)
 			self.add_labels()
+		
+		if self.simplify:
+			self.apply_simplification()
 
 	def change_periphrastic_property_name(self,properties):
 		for prop in properties:
@@ -259,8 +315,13 @@ class Parser:
 	"""
 
 	def parse(self,rdf):
-		for el in rdf:
-			self.graph.parse(data=el, format="application/rdf+xml")
-			self.periphrastic_parsing()
-			self.n_ary_parsing()
-		return self.graph.serialize(format=self.outtype)
+		try:
+			for el in rdf:
+				self.graph.parse(data=el, format="application/rdf+xml")
+				self.periphrastic_parsing()
+				self.n_ary_parsing()
+			return self.graph.serialize(format=self.outtype)
+		except e:
+			print("Error: FRODO is not able to produce an output")
+			print(e)
+			return None
