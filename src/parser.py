@@ -10,6 +10,8 @@ VOWELS = ['a','e','i','o','u','A','E','I','O','U']
 class Parser:
 	"""
 	This class performs the parsing fred -> frodo explained in frodo's paper
+	outtype: output syntax of the obtained ontology
+	simplify: boolean value, whether to get rid of some FRED's meta data or not
 	"""
 
 	def __init__(self,outtype,simplify):
@@ -90,6 +92,9 @@ class Parser:
 		return agentive
 
 
+	"""
+	get_periphrastic_relations: output list of periphrastic properties
+	"""
 	def get_periphrastic_relations(self):
 		filtered_periphrastic = []
 		periphrastic = list(self.graph.triples((None,RDF.type,self.owl.ObjectProperty)))
@@ -118,19 +123,10 @@ class Parser:
 			passive_name = class_passive_roles[0].split('#')[1] #name of the passive class
 			return passive_roles, class_passive_roles, passive_name
 
-
-	def change_name_n_ary_class(self,superclass,superclass_name):
-		sub = list(self.graph.predicate_objects(superclass))
-		obj = list(self.graph.subject_predicates(superclass))
-
-		#remove every occurrence of n-ary class as subject and object
-		self.graph.remove((superclass,None,None))
-		self.graph.remove((None,None,superclass))
-
-		for p,o in sub: #change existing occurrences of the n-ary class
-			self.graph.add((URIRef(self.frodo+superclass_name),p,o))
-		for s,p in obj:
-			self.graph.add((s,p,URIRef(self.frodo+superclass_name)))
+	"""
+	add_labels: for each frodo object, add a label triple.
+		    The label value is a string taken from the class/property name, which gets separated based on uppercase letters and turned into lowercase
+	"""
 
 	def add_labels(self):
 		import re
@@ -139,6 +135,10 @@ class Parser:
 				label = s.rsplit('/',1)[1]
 				label = ' '.join(re.findall('[a-zA-Z][^A-Z]*', label)) #splitting sentences based on uppercase letters
 				self.graph.add((s,RDFS.label,Literal(label.lower())))
+
+	"""
+	apply_simplification: delete FRED's offsets
+	"""
 
 	def apply_simplification(self):
 		def delete_offsets(self,offset):
@@ -154,6 +154,10 @@ class Parser:
 		for el in offsets:
 			delete_offsets(self,el)
 
+	"""
+	change_namespace: turn fred namespace to frodo
+	"""
+
 	def change_namespace(self):
 		for s,p,o in self.graph.triples((None,None,None)):
 			new_s, new_p, new_o = s,p,o
@@ -165,6 +169,10 @@ class Parser:
 				new_o = URIRef(self.frodo+o.split('#')[1])
 			self.graph.remove((s,p,o))
 			self.graph.add((new_s,new_p,new_o))
+
+	"""
+	add_class_axioms: add type owl.Class triples for each class
+	"""
 
 	def add_class_axioms(self):
 		for s,p,o in self.graph.triples((None,None,None)):
@@ -189,12 +197,8 @@ class Parser:
 			passive_roles, class_passive_roles, passive_name = self.get_role(el,role_type="passive")
 			agentive_roles, class_agentive_roles, agentive_name = self.get_role(el,role_type="agentive")
 
-			self.change_name_n_ary_class(superclass,superclass_name)
-
 			#add n-ary class
 			self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,URIRef(self.frodo+superclass_name)))
-
-			#fred doesn't put, for each class, the triple showing that it is an instance of owl:Class, so no such triple will be added in FRODO
 
 			#change type of n-ary instance
 			self.graph.remove((el,RDF.type,None))
@@ -309,7 +313,6 @@ class Parser:
 				self.periphrastic_parsing()
 				self.n_ary_parsing()
 			return self.graph.serialize(format=self.outtype)
-		except e:
+		except:
 			print("Error: FRODO is not able to produce an output")
-			print(e)
 			return None
