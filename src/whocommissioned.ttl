@@ -1,0 +1,75 @@
+@prefix fred_quantifiers: <http://www.ontologydesignpatterns.org/ont/fred/quantifiers.owl#> .
+@prefix frodo: <https://w3id.org/stlab/ontology/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vn_data: <http://www.ontologydesignpatterns.org/ont/vn/abox/role/> .
+
+fred_quantifiers:hasDeterminer a owl:ObjectProperty .
+
+vn_data:Agent a owl:ObjectProperty .
+
+vn_data:Patient a owl:ObjectProperty .
+
+rdfs:subClassOf a owl:ObjectProperty .
+
+frodo:ComponentCommissioning a owl:Class ;
+    rdfs:label "component commissioning" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty frodo:involvesComponent ;
+            owl:someValuesFrom frodo:involvesComponent ],
+        [ a owl:Restriction ;
+            owl:onProperty frodo:involvesPerson ;
+            owl:someValuesFrom frodo:involvesPerson ],
+        frodo:Commissioning .
+
+frodo:componentOfSystem a owl:ObjectProperty ;
+    rdfs:label "component of system" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:System ;
+    owl:inverseOf frodo:isComponentOfSystemOf .
+
+frodo:isComponentInvolvedIn a owl:ObjectProperty ;
+    rdfs:label "is component involved in" ;
+    rdfs:domain frodo:Component ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:involvesComponent .
+
+frodo:isComponentOfSystemOf a owl:ObjectProperty ;
+    rdfs:label "is component of system of" ;
+    rdfs:domain frodo:System ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:componentOfSystem .
+
+frodo:isPersonInvolvedIn a owl:ObjectProperty ;
+    rdfs:label "is person involved in" ;
+    rdfs:domain frodo:Person ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:involvesPerson .
+
+frodo:person_1 a frodo:Person ;
+    frodo:isPersonInvolvedIn frodo:commission_1 .
+
+frodo:system_1 a frodo:System ;
+    fred_quantifiers:hasDeterminer fred_quantifiers:a ;
+    frodo:isComponentOfSystemOf frodo:component_1 .
+
+frodo:commission_1 a frodo:ComponentCommissioning ;
+    frodo:involvesComponent frodo:component_1 ;
+    frodo:involvesPerson frodo:person_1 .
+
+frodo:component_1 a frodo:Component ;
+    fred_quantifiers:hasDeterminer fred_quantifiers:a ;
+    frodo:componentOfSystem frodo:system_1 ;
+    frodo:isComponentInvolvedIn frodo:commission_1 .
+
+frodo:involvesComponent a owl:ObjectProperty ;
+    rdfs:label "involves component" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:Component ;
+    owl:inverseOf frodo:isComponentInvolvedIn .
+
+frodo:involvesPerson a owl:ObjectProperty ;
+    rdfs:label "involves person" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:Person ;
+    owl:inverseOf frodo:isPersonInvolvedIn .

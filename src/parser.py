@@ -133,49 +133,18 @@ class Parser:
 			self.graph.add((s,p,URIRef(self.frodo+superclass_name)))
 
 	def add_labels(self):
+		import re
 		for s,p,o in self.graph.triples((None,None,None)):
 			if self.frodo in s:
 				label = s.rsplit('/',1)[1]
-				self.graph.add((s,RDFS.label,Literal(label)))
-
-	def change_agentive_passive_namespace(self, frame_occurrence):
-		def remove_class_or_instance(self,toremove):
-			sub = list(self.graph.predicate_objects(toremove))
-			obj = list(self.graph.subject_predicates(toremove))
-
-
-			self.graph.remove((toremove,None,None)), self.graph.remove((None,None,toremove))
-
-			return sub,obj
-
-		def change_namespace(self,tochange):
-			sub, obj = remove_class_or_instance(self,tochange)
-			new_instance = URIRef(get_new_namespace(tochange,self.frodo))
-
-			for p,o in sub:
-				self.graph.add((new_instance,p,o))
-			for s,p in obj:
-				self.graph.add((s,p,new_instance))
-
-			return new_instance
-
-		agentive,class_agentive,_ = self.get_role(frame_occurrence,"agentive")
-		new_instance = change_namespace(self,agentive[0])
-
-		#class_agentive = self.graph.triples((new_instance,RDF.type,None))[2]
-		change_namespace(self,class_agentive[0])
-
-		passive,class_passive,_ = self.get_role(frame_occurrence,"passive")
-		new_instance = change_namespace(self,passive[0])
-
-		#class_passive = self.graph.triples((new_instance,RDF.type,None))[2]
-		change_namespace(self,class_passive[0])
+				label = ' '.join(re.findall('[a-zA-Z][^A-Z]*', label)) #splitting sentences based on uppercase letters
+				self.graph.add((s,RDFS.label,Literal(label.lower())))
 
 	def apply_simplification(self):
 		def delete_offsets(self,offset):
 			triples = self.graph.triples((offset,None,None))
 			for s,p,o in list(triples):
-				if p != self.semiotics.denotes:
+				if p != self.semiotics.denotes and p != self.semiotics.hasInterpretant:
 					delete_offsets(self,o)
 				self.graph.remove((s,p,o))
 				if len(list(self.graph.triples((None,p,None)))) == 0:
@@ -185,6 +154,22 @@ class Parser:
 		for el in offsets:
 			delete_offsets(self,el)
 
+	def change_namespace(self):
+		for s,p,o in self.graph.triples((None,None,None)):
+			new_s, new_p, new_o = s,p,o
+			if self.fred in s:
+				new_s = URIRef(self.frodo+s.split('#')[1])
+			if self.fred in p:
+				new_p = URIRef(self.frodo+p.split('#')[1])
+			if self.fred in o:
+				new_o = URIRef(self.frodo+o.split('#')[1])
+			self.graph.remove((s,p,o))
+			self.graph.add((new_s,new_p,new_o))
+
+	def add_class_axioms(self):
+		for s,p,o in self.graph.triples((None,None,None)):
+			if self.frodo in s and s.rsplit('/',1)[1][0].isupper(): #looking for classes
+				self.graph.add((s,RDF.type,self.owl.Class))
 	"""
 	n_ary_parsing: base function applying the first step of fred -> frodo's conversion
 	The function has no input and output, since it modifies self.graph
@@ -268,6 +253,9 @@ class Parser:
 		
 		if self.simplify:
 			self.apply_simplification()
+		self.change_namespace()
+		self.add_class_axioms()
+
 
 	def change_periphrastic_property_name(self,properties):
 		for prop in properties:
