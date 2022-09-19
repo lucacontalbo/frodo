@@ -123,6 +123,16 @@ class Parser:
 			passive_name = class_passive_roles[0].split('#')[1] #name of the passive class
 			return passive_roles, class_passive_roles, passive_name
 
+	def get_roles(self,frame_occurrence):
+		roles = []
+		triples = self.graph.triples((frame_occurrence,None,None))
+		for s,p,o in triples:
+			if self.vn_data in p:
+				class_role = list_map(self.graph.objects,[o],predicate=RDF.type)
+				name = class_role[0].split('#')[1]
+				roles.append([o,p,class_role,name])
+		return roles
+
 	"""
 	add_labels: for each frodo object, add a label triple.
 		    The label value is a string taken from the class/property name, which gets separated based on uppercase letters and turned into lowercase
@@ -193,22 +203,45 @@ class Parser:
 				superclass_name = superclass_name[:-1]
 			superclass_name+='ing'
 
+			sub = self.graph.triples((superclass,None,None))
+			obj = self.graph.triples((None,None,superclass))
 
-			passive_roles, class_passive_roles, passive_name = self.get_role(el,role_type="passive")
-			agentive_roles, class_agentive_roles, agentive_name = self.get_role(el,role_type="agentive")
+			for s,p,o in sub:
+				self.graph.add((URIRef(self.frodo+superclass_name),p,o))
+			for s,p,o in obj:
+				self.graph.add((s,p,URIRef(self.frodo+superclass_name)))
 
-			#add n-ary class
-			self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,URIRef(self.frodo+superclass_name)))
+			self.graph.remove((superclass,None,None))
+			self.graph.remove((None,None,superclass))
 
-			#change type of n-ary instance
-			self.graph.remove((el,RDF.type,None))
-			self.graph.add((el,RDF.type,URIRef(self.frodo+passive_name+superclass_name)))
+			#passive_roles, class_passive_roles, passive_name = self.get_role(el,role_type="passive")
+			#agentive_roles, class_agentive_roles, agentive_name = self.get_role(el,role_type="agentive")
+			roles = self.get_roles(el)
+			passive_found = -1
+			for i in range(len(roles)):
+				if roles[i][1] in self.passive:
+					passive_found = i
+
+			print(passive_found)
+			if passive_found == -1:
+				passive_roles, pred_passive_role, class_passive_roles, passive_name = roles[0]
+				agentive_roles, pred_agentive_role, class_agentive_roles, agentive_name = roles[1]
+			else:
+				passive_roles, pred_passive_role, class_passive_roles, passive_name = roles[passive_found]
+				agentive_roles, pred_agentive_role, class_agentive_roles, agentive_name = roles[1-passive_found]
+
+				#add n-ary class
+				self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,URIRef(self.frodo+superclass_name)))
+
+				#change type of n-ary instance
+				self.graph.remove((el,RDF.type,None))
+				self.graph.add((el,RDF.type,URIRef(self.frodo+passive_name+superclass_name)))
 
 			#change property names
-			for passive_role in self.passive:
-				self.graph.remove((el,passive_role,None))
-			for agent_role in self.agentive:
-				self.graph.remove((el,agent_role,None))
+			#for passive_role in self.passive:
+			self.graph.remove((el,pred_passive_role,None))
+			#for agent_role in self.agentive:
+			self.graph.remove((el,pred_agentive_role,None))
 
 			self.graph.add((URIRef(self.frodo+'involves{}'.format(agentive_name)),RDF.type,self.owl.ObjectProperty)) #setting new relations as properties
 			self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),RDF.type,self.owl.ObjectProperty))
@@ -230,11 +263,11 @@ class Parser:
 			self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),self.owl.inverseOf,URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name))))
 			self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),self.owl.inverseOf,URIRef(self.frodo+'involves{}'.format(passive_name))))
 
-			self.graph.add((el,URIRef(self.frodo+'involves{}'.format(agentive_name)),agentive_roles[0])) #setting newly created properties between class instances
-			self.graph.add((el,URIRef(self.frodo+'involves{}'.format(passive_name)),passive_roles[0]))
+			self.graph.add((el,URIRef(self.frodo+'involves{}'.format(agentive_name)),agentive_roles)) #setting newly created properties between class instances
+			self.graph.add((el,URIRef(self.frodo+'involves{}'.format(passive_name)),passive_roles))
 
-			self.graph.add((agentive_roles[0],URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),el))
-			self.graph.add((passive_roles[0],URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),el))
+			self.graph.add((agentive_roles,URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),el))
+			self.graph.add((passive_roles,URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),el))
 
 			#adding subclass restrictions to newly created class
 			blank_node1 = BNode()
@@ -249,8 +282,12 @@ class Parser:
 			self.graph.add((blank_node2,self.owl.onProperty,URIRef(self.frodo+'involves{}'.format(passive_name))))
 			self.graph.add((blank_node2,self.owl.someValuesFrom, URIRef(self.frodo+'involves{}'.format(passive_name))))
 
-			self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node1))
-			self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node2))
+			if passive_found == -1:
+				self.graph.add((URIRef(self.frodo+superclass_name),RDFS.subClassOf,blank_node1))
+				self.graph.add((URIRef(self.frodo+superclass_name),RDFS.subClassOf,blank_node2))
+			else:
+				self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node1))
+				self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node2))
 
 			#self.change_agentive_passive_namespace(el)
 			self.add_labels()
@@ -313,6 +350,7 @@ class Parser:
 				self.periphrastic_parsing()
 				self.n_ary_parsing()
 			return self.graph.serialize(format=self.outtype)
-		except:
+		except e:
+			print(e)
 			print("Error: FRODO is not able to produce an output")
 			return None
