@@ -222,76 +222,90 @@ class Parser:
 				if roles[i][1] in self.passive:
 					passive_found = i
 
-			print(passive_found)
 			if passive_found == -1:
-				passive_roles, pred_passive_role, class_passive_roles, passive_name = roles[0]
-				agentive_roles, pred_agentive_role, class_agentive_roles, agentive_name = roles[1]
+				if len(roles) != 0:
+					passive_roles, pred_passive_role, class_passive_roles, passive_name = roles[0]
+				if len(roles) > 1:
+					agentive_roles, pred_agentive_role, class_agentive_roles, agentive_name = roles[1]
 			else:
-				passive_roles, pred_passive_role, class_passive_roles, passive_name = roles[passive_found]
-				agentive_roles, pred_agentive_role, class_agentive_roles, agentive_name = roles[1-passive_found]
+				if len(roles) > 1:
+					agentive_roles, pred_agentive_role, class_agentive_roles, agentive_name = roles[1-passive_found]
 
-				#add n-ary class
-				self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,URIRef(self.frodo+superclass_name)))
+				if len(roles) != 0:
+					passive_roles, pred_passive_role, class_passive_roles, passive_name = roles[passive_found]
 
-				#change type of n-ary instance
-				self.graph.remove((el,RDF.type,None))
-				self.graph.add((el,RDF.type,URIRef(self.frodo+passive_name+superclass_name)))
+					#add n-ary class
+					self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,URIRef(self.frodo+superclass_name)))
 
-			#change property names
-			#for passive_role in self.passive:
-			self.graph.remove((el,pred_passive_role,None))
-			#for agent_role in self.agentive:
-			self.graph.remove((el,pred_agentive_role,None))
+					#change type of n-ary instance
+					self.graph.remove((el,RDF.type,None))
+					self.graph.add((el,RDF.type,URIRef(self.frodo+passive_name+superclass_name)))
 
-			self.graph.add((URIRef(self.frodo+'involves{}'.format(agentive_name)),RDF.type,self.owl.ObjectProperty)) #setting new relations as properties
-			self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),RDF.type,self.owl.ObjectProperty))
-			self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),RDF.type,self.owl.ObjectProperty))
-			self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),RDF.type,self.owl.ObjectProperty))
+			if len(roles) != 0: #TODO: refactor
+				self.graph.remove((el,pred_passive_role,None))
 
-			self.graph.add((URIRef(self.frodo+'involves{}'.format(agentive_name)),RDFS.domain,self.owl.Thing)) #setting domain axioms to properties
-			self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),RDFS.domain,self.owl.Thing))
-			self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),RDFS.domain,class_agentive_roles[0]))
-			self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),RDFS.domain,class_passive_roles[0]))
+				self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),RDF.type,self.owl.ObjectProperty))
+				self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),RDF.type,self.owl.ObjectProperty))
 
-			self.graph.add((URIRef(self.frodo+'involves{}'.format(agentive_name)),RDFS.range,class_agentive_roles[0])) #setting range axioms to properties
-			self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),RDFS.range,class_passive_roles[0]))
-			self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),RDFS.range,self.owl.Thing))
-			self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),RDFS.range,self.owl.Thing))
+				self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),RDFS.domain,self.owl.Thing))
+				self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),RDFS.domain,class_passive_roles[0]))
 
-			self.graph.add((URIRef(self.frodo+'involves{}'.format(agentive_name)),self.owl.inverseOf,URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)))) #setting inverseOf relations
-			self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),self.owl.inverseOf,URIRef(self.frodo+'involves{}'.format(agentive_name))))
-			self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),self.owl.inverseOf,URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name))))
-			self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),self.owl.inverseOf,URIRef(self.frodo+'involves{}'.format(passive_name))))
+				self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),RDFS.range,class_passive_roles[0]))
+				self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),RDFS.range,self.owl.Thing))
 
-			self.graph.add((el,URIRef(self.frodo+'involves{}'.format(agentive_name)),agentive_roles)) #setting newly created properties between class instances
-			self.graph.add((el,URIRef(self.frodo+'involves{}'.format(passive_name)),passive_roles))
+				self.graph.add((URIRef(self.frodo+'involves{}'.format(passive_name)),self.owl.inverseOf,URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name))))
+				self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),self.owl.inverseOf,URIRef(self.frodo+'involves{}'.format(passive_name))))
 
-			self.graph.add((agentive_roles,URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),el))
-			self.graph.add((passive_roles,URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),el))
+				self.graph.add((el,URIRef(self.frodo+'involves{}'.format(passive_name)),passive_roles))
 
-			#adding subclass restrictions to newly created class
-			blank_node1 = BNode()
+				self.graph.add((passive_roles,URIRef(self.frodo+'is{}InvolvedIn'.format(passive_name)),el))
 
-			self.graph.add((blank_node1,RDF.type,self.owl.Restriction))
-			self.graph.add((blank_node1,self.owl.onProperty,URIRef(self.frodo+'involves{}'.format(agentive_name))))
-			self.graph.add((blank_node1,self.owl.someValuesFrom, URIRef(self.frodo+'involves{}'.format(agentive_name)))) #someValuesFrom and allValuesFrom should be the same, given the range axioms of the properties
+				blank_node2 = BNode()
 
-			blank_node2 = BNode()
+				self.graph.add((blank_node2,RDF.type,self.owl.Restriction))
+				self.graph.add((blank_node2,self.owl.onProperty,URIRef(self.frodo+'involves{}'.format(passive_name))))
+				self.graph.add((blank_node2,self.owl.someValuesFrom, URIRef(self.frodo+'involves{}'.format(passive_name))))
 
-			self.graph.add((blank_node2,RDF.type,self.owl.Restriction))
-			self.graph.add((blank_node2,self.owl.onProperty,URIRef(self.frodo+'involves{}'.format(passive_name))))
-			self.graph.add((blank_node2,self.owl.someValuesFrom, URIRef(self.frodo+'involves{}'.format(passive_name))))
+				if passive_found == -1:
+					self.graph.add((URIRef(self.frodo+superclass_name),RDFS.subClassOf,blank_node2))
+				else:
+					self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node2))
 
-			if passive_found == -1:
-				self.graph.add((URIRef(self.frodo+superclass_name),RDFS.subClassOf,blank_node1))
-				self.graph.add((URIRef(self.frodo+superclass_name),RDFS.subClassOf,blank_node2))
-			else:
-				self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node1))
-				self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node2))
+			if len(roles) > 1:
+				#change property names
+				self.graph.remove((el,pred_agentive_role,None))
+
+				self.graph.add((URIRef(self.frodo+'involves{}'.format(agentive_name)),RDF.type,self.owl.ObjectProperty)) #setting new relations as properties
+				self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),RDF.type,self.owl.ObjectProperty))
+
+				self.graph.add((URIRef(self.frodo+'involves{}'.format(agentive_name)),RDFS.domain,self.owl.Thing)) #setting domain axioms to properties
+				self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),RDFS.domain,class_agentive_roles[0]))
+
+				self.graph.add((URIRef(self.frodo+'involves{}'.format(agentive_name)),RDFS.range,class_agentive_roles[0])) #setting range axioms to properties
+				self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),RDFS.range,self.owl.Thing))
+
+				self.graph.add((URIRef(self.frodo+'involves{}'.format(agentive_name)),self.owl.inverseOf,URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)))) #setting inverseOf relations
+				self.graph.add((URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),self.owl.inverseOf,URIRef(self.frodo+'involves{}'.format(agentive_name))))
+
+				self.graph.add((el,URIRef(self.frodo+'involves{}'.format(agentive_name)),agentive_roles)) #setting newly created properties between class instances
+
+				self.graph.add((agentive_roles,URIRef(self.frodo+'is{}InvolvedIn'.format(agentive_name)),el))
+
+				#adding subclass restrictions to newly created class
+				blank_node1 = BNode()
+
+				self.graph.add((blank_node1,RDF.type,self.owl.Restriction))
+				self.graph.add((blank_node1,self.owl.onProperty,URIRef(self.frodo+'involves{}'.format(agentive_name))))
+				self.graph.add((blank_node1,self.owl.someValuesFrom, URIRef(self.frodo+'involves{}'.format(agentive_name)))) #someValuesFrom and allValuesFrom should be the same, given the range axioms of the properties
+
+				if passive_found == -1:
+					self.graph.add((URIRef(self.frodo+superclass_name),RDFS.subClassOf,blank_node1))
+				else:
+					self.graph.add((URIRef(self.frodo+passive_name+superclass_name),RDFS.subClassOf,blank_node1))
 
 			#self.change_agentive_passive_namespace(el)
 			self.add_labels()
-		
+
 		if self.simplify:
 			self.apply_simplification()
 		self.change_namespace()
