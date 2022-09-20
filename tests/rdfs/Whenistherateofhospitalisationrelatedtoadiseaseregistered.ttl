@@ -1,4 +1,3 @@
------ OBTAINED ONTOLOGY -----
 @prefix dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> .
 @prefix fred_pos: <http://www.ontologydesignpatterns.org/ont/fred/pos.owl#> .
 @prefix fred_quantifiers: <http://www.ontologydesignpatterns.org/ont/fred/quantifiers.owl#> .
@@ -100,6 +99,3 @@ frodo:involvesDisease a owl:ObjectProperty ;
 frodo:Disease a owl:Class ;
     fred_pos:boxerpos fred_pos:n ;
     owl:equivalentClass <http://dbpedia.org/resource/Disease> .
-
-
-Created file view_graph/Whenistherateofhospitalisationrelatedtoadiseaseregistered?.pdf

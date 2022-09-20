@@ -36,7 +36,7 @@ WHERE {
 	?parameter rdf:type frodo:Parameter .
 	?representation rdf:type frodo:Representing .
 	?quality rdf:type frodo:Quality .
-	?waterbody rdf:type frodo:Body .
+	?waterbody rdf:type frodo:WaterBody .
 }
 
 
@@ -44,8 +44,8 @@ Who monitors the hospitalisations for a disease in geographical area?
 SELECT ?person
 WHERE {
 	?person frodo:isPersonInvolvedIn ?monitor .
-	?monitor frodo:involvedDisease ?disease .
-	?monitor frodo:isInGeographicalArea ?area .
+	?monitor frodo:involvesDisease ?disease .
+	?monitor frodo:inGeographicalArea ?area .
 	?person rdf:type frodo:Person .
 	?monitor rdf:type frodo:Monitoring .
 	?disease rdf:type frodo:Disease .
@@ -58,7 +58,7 @@ SELECT ?time
 WHERE {
 	?chemical dul:associatedWith ?substance .
 	?substance frodo:isChemicalSubstanceInvolvedIn ?record .
-	?record frodo:involvedWater ?water .
+	?record frodo:involvesWater ?water .
 	?record dul:associatedWith ?time .
 	?chemical rdf:type frodo:Chemical .
 	?substance rdf:type frodo:ChemicalSubstance .
@@ -72,12 +72,12 @@ Who records the amount of microbiological substances in surface waters in time?
 SELECT ?person
 WHERE {
 	?person frodo:isPersonInvolvedIn ?record .
-	?record frodo:involvedAmount ?amount .
+	?record frodo:involvesAmount ?amount .
 	?amount frodo:amountOfMicrobiologicalSubstance ?substance .
-	?substance frodo:inSurfaceWaters ?water
+	?substance frodo:inSurfaceWaters ?water .
 	?person rdf:type frodo:Person .
 	?record rdf:type frodo:Recording .
 	?amount rdf:type frodo:Amount .
 	?substance rdf:type frodo:MicrobiologicalSubstance .
-	?water rdf:type frodo:Waters .
+	?water rdf:type frodo:SurfaceWaters .
 }

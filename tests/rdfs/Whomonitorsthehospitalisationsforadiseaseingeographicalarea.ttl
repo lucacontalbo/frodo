@@ -1,4 +1,3 @@
------ OBTAINED ONTOLOGY -----
 @prefix dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> .
 @prefix fred_pos: <http://www.ontologydesignpatterns.org/ont/fred/pos.owl#> .
 @prefix fred_quantifiers: <http://www.ontologydesignpatterns.org/ont/fred/quantifiers.owl#> .
@@ -112,6 +111,3 @@ frodo:monitor_1 a frodo:Monitoring ;
     frodo:inGeographicalArea frodo:area_1 ;
     frodo:involvesDisease frodo:disease_1 ;
     frodo:involvesPerson frodo:person_1 .
-
-
-Created file view_graph/Whomonitorsthehospitalisationsforadiseaseingeographicalarea?.pdf

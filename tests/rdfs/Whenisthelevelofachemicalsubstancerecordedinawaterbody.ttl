@@ -1,4 +1,3 @@
------ OBTAINED ONTOLOGY -----
 @prefix dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> .
 @prefix fred_pos: <http://www.ontologydesignpatterns.org/ont/fred/pos.owl#> .
 @prefix fred_quantifiers: <http://www.ontologydesignpatterns.org/ont/fred/quantifiers.owl#> .
@@ -33,11 +32,11 @@ frodo:Recording a owl:Class ;
     rdfs:label "recording" ;
     fred_pos:boxerpos fred_pos:v ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:onProperty frodo:involvesWater ;
-            owl:someValuesFrom frodo:involvesWater ],
-        [ a owl:Restriction ;
             owl:onProperty frodo:involvesChemicalSubstance ;
             owl:someValuesFrom frodo:involvesChemicalSubstance ],
+        [ a owl:Restriction ;
+            owl:onProperty frodo:involvesWater ;
+            owl:someValuesFrom frodo:involvesWater ],
         dul:Event ;
     owl:equivalentClass <http://www.ontologydesignpatterns.org/ont/vn/data/Record_25040000> .
 
@@ -116,6 +115,3 @@ frodo:ChemicalSubstance a owl:Class ;
     dul:associatedWith frodo:Chemical ;
     rdfs:subClassOf frodo:Substance ;
     owl:equivalentClass <http://dbpedia.org/resource/Chemical_substance> .
-
-
-Created file view_graph/Whenisthelevelofachemicalsubstancerecordedinawaterbody?.pdf

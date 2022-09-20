@@ -1,4 +1,3 @@
------ OBTAINED ONTOLOGY -----
 @prefix dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> .
 @prefix fred_pos: <http://www.ontologydesignpatterns.org/ont/fred/pos.owl#> .
 @prefix fred_quantifiers: <http://www.ontologydesignpatterns.org/ont/fred/quantifiers.owl#> .
@@ -110,6 +109,3 @@ frodo:involvesQuality a owl:ObjectProperty ;
     owl:inverseOf frodo:isQualityInvolvedIn .
 
 owl:Thing fred_pos:boxerpos fred_pos:n .
-
-
-Created file view_graph/Whatisaparameterthatrepresentsthequalityofwaterbodies?.pdf
