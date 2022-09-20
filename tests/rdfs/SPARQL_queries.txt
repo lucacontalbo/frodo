@@ -1,0 +1,83 @@
+Prefixes are omitted
+
+What are the contaminated sites in a geographical area recorded in time?
+SELECT ?site
+WHERE {
+	?site rdf:type frodo:ContaminatedSite .
+	?site frodo:inGeographicalArea ?area .
+	?area frodo:isGeographicalAreaInvolvedIn ?record .
+	?record frodo:involvesTime ?time .
+	?area rdf:type frodo:GeographicalArea .
+	?record rdf:type frodo:Recording .
+	?time rdf:type frodo:Time .
+}
+
+
+When is the rate of hospitalisation related to a disease registered?
+SELECT ?time
+WHERE {
+	?rate dul:associatedWith ?time .
+	?rate frodo:relateToDisease ?disease .
+	?rate frodo:rateOfHospitalisation ?hospitalisation .
+	?rate rdf:type frodo:Rate .
+	?disease rdf:type frodo:Disease .
+	?hospitalisation rdf:type frodo:Hospitalisation .
+	?time rdf:type frodo:Unit_of_time .
+}
+
+
+
+What is a parameter that represents the quality of water bodies?
+SELECT ?parameter
+WHERE {
+	?parameter frodo:isParameterInvolvedIn ?representation .
+	?representation frodo:involvesQuality ?quality .
+	?quality frodo:qualityOfWaterBody ?waterbody .
+	?parameter rdf:type frodo:Parameter .
+	?representation rdf:type frodo:Representing .
+	?quality rdf:type frodo:Quality .
+	?waterbody rdf:type frodo:Body .
+}
+
+
+Who monitors the hospitalisations for a disease in geographical area?
+SELECT ?person
+WHERE {
+	?person frodo:isPersonInvolvedIn ?monitor .
+	?monitor frodo:involvedDisease ?disease .
+	?monitor frodo:isInGeographicalArea ?area .
+	?person rdf:type frodo:Person .
+	?monitor rdf:type frodo:Monitoring .
+	?disease rdf:type frodo:Disease .
+	?area rdf:type frodo:GeographicalArea .
+}
+
+
+When is the level of a chemical substance recorded in a water body?
+SELECT ?time
+WHERE {
+	?chemical dul:associatedWith ?substance .
+	?substance frodo:isChemicalSubstanceInvolvedIn ?record .
+	?record frodo:involvedWater ?water .
+	?record dul:associatedWith ?time .
+	?chemical rdf:type frodo:Chemical .
+	?substance rdf:type frodo:ChemicalSubstance .
+	?record rdf:type frodo:Recording .
+	?water rdf:type frodo:Water .
+	?time rdf:type frodo:Unit_of_time .
+}
+
+
+Who records the amount of microbiological substances in surface waters in time?
+SELECT ?person
+WHERE {
+	?person frodo:isPersonInvolvedIn ?record .
+	?record frodo:involvedAmount ?amount .
+	?amount frodo:amountOfMicrobiologicalSubstance ?substance .
+	?substance frodo:inSurfaceWaters ?water
+	?person rdf:type frodo:Person .
+	?record rdf:type frodo:Recording .
+	?amount rdf:type frodo:Amount .
+	?substance rdf:type frodo:MicrobiologicalSubstance .
+	?water rdf:type frodo:Waters .
+}
