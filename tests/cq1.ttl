@@ -1,0 +1,11 @@
+@prefix owlunit: <https://w3id.org/OWLunit/ontology/> .
+@prefix ex: <https://w3id.org/OWLunit/examples/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:cq1.ttl a owlunit:CompetencyQuestionVerification ;
+	owlunit:hasCompetencyQuestion "What are the contaminated sites in a geographical area recorded in time?" ;
+	owlunit:hasSPARQLUnitTest "PREFIX foaf: <http://xmlns.com/foaf/0.1/> PREFIX frodo: <https://w3id.org/stlab/ontology/> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  SELECT ?site { ?site rdf:type frodo:ContaminatedSite . ?site frodo:inGeographicalArea ?area . ?area frodo:isGeographicalAreaInvolvedIn ?record . ?record frodo:involvesTime ?time . ?area rdf:type frodo:GeographicalArea . ?record rdf:type frodo:Recording . ?time rdf:type frodo:Time .}" ;
+	owlunit:hasInputData ex:Whatarethecontaminatedsitesinageographicalarearecordedintime.ttl ;
+	owlunit:hasInputTestDataCategory owlunit:ToyDataset ;
+	owlunit:hasExpectedResult "{  \"head\": {  \"vars\": [  \"interest\" ] } ,  \"results\": {  \"bindings\": [ {  \"interest\": {  \"type\":  \"uri\" ,  \"value\":  \"https://w3id.org/OWLunit/examples/Basketball\" } } ] } }";
+	owlunit:testsOntology foaf: .

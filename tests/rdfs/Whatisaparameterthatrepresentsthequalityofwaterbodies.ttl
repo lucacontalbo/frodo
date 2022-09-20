@@ -1,0 +1,115 @@
+----- OBTAINED ONTOLOGY -----
+@prefix dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> .
+@prefix fred_pos: <http://www.ontologydesignpatterns.org/ont/fred/pos.owl#> .
+@prefix fred_quantifiers: <http://www.ontologydesignpatterns.org/ont/fred/quantifiers.owl#> .
+@prefix frodo: <https://w3id.org/stlab/ontology/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vn_data: <http://www.ontologydesignpatterns.org/ont/vn/abox/role/> .
+
+dul:associatedWith a owl:ObjectProperty .
+
+fred_pos:boxerpos a owl:ObjectProperty .
+
+fred_quantifiers:hasDeterminer a owl:ObjectProperty .
+
+fred_quantifiers:hasQuantifier a owl:ObjectProperty .
+
+vn_data:Agent a owl:ObjectProperty .
+
+vn_data:Theme a owl:ObjectProperty .
+
+rdfs:subClassOf a owl:ObjectProperty .
+
+owl:equivalentClass a owl:ObjectProperty .
+
+frodo:water_1 a frodo:Water ;
+    dul:associatedWith frodo:body_1 .
+
+frodo:Body a owl:Class ;
+    fred_pos:boxerpos fred_pos:n .
+
+frodo:Representing a owl:Class ;
+    rdfs:label "representing" ;
+    fred_pos:boxerpos fred_pos:v ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty frodo:involvesQuality ;
+            owl:someValuesFrom frodo:involvesQuality ],
+        [ a owl:Restriction ;
+            owl:onProperty frodo:involvesParameter ;
+            owl:someValuesFrom frodo:involvesParameter ],
+        dul:Event ;
+    owl:equivalentClass <http://www.ontologydesignpatterns.org/ont/vn/data/Represent_29020110> .
+
+frodo:Water a owl:Class ;
+    fred_pos:boxerpos fred_pos:n ;
+    owl:equivalentClass <http://dbpedia.org/resource/Water_pollution> .
+
+frodo:isParameterInvolvedIn a owl:ObjectProperty ;
+    rdfs:label "is parameter involved in" ;
+    rdfs:domain frodo:Parameter ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:involvesParameter .
+
+frodo:isQualityInvolvedIn a owl:ObjectProperty ;
+    rdfs:label "is quality involved in" ;
+    rdfs:domain frodo:Quality ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:involvesQuality .
+
+frodo:isQualityOfWaterBodyOf a owl:ObjectProperty ;
+    rdfs:label "is quality of water body of" ;
+    rdfs:domain frodo:WaterBody ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:qualityOfWaterBody .
+
+frodo:qualityOfWaterBody a owl:ObjectProperty ;
+    rdfs:label "quality of water body" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:WaterBody ;
+    owl:inverseOf frodo:isQualityOfWaterBodyOf .
+
+frodo:thing_1 a frodo:Parameter ;
+    fred_quantifiers:hasDeterminer fred_quantifiers:a ;
+    frodo:isParameterInvolvedIn frodo:represent_1 .
+
+frodo:body_1 a frodo:WaterBody ;
+    fred_quantifiers:hasQuantifier fred_quantifiers:multiple ;
+    frodo:isQualityOfWaterBodyOf frodo:quality_1 .
+
+frodo:quality_1 a frodo:Quality ;
+    fred_quantifiers:hasDeterminer fred_quantifiers:the ;
+    frodo:isQualityInvolvedIn frodo:represent_1 ;
+    frodo:qualityOfWaterBody frodo:body_1 .
+
+frodo:represent_1 a frodo:Representing ;
+    frodo:involvesParameter frodo:thing_1 ;
+    frodo:involvesQuality frodo:quality_1 .
+
+frodo:Parameter a owl:Class ;
+    fred_pos:boxerpos fred_pos:n ;
+    owl:equivalentClass <http://dbpedia.org/resource/Parameter> .
+
+frodo:Quality a owl:Class ;
+    fred_pos:boxerpos fred_pos:n ;
+    owl:equivalentClass <http://dbpedia.org/resource/Water_quality> .
+
+frodo:WaterBody a owl:Class ;
+    rdfs:subClassOf frodo:Body .
+
+frodo:involvesParameter a owl:ObjectProperty ;
+    rdfs:label "involves parameter" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:Parameter ;
+    owl:inverseOf frodo:isParameterInvolvedIn .
+
+frodo:involvesQuality a owl:ObjectProperty ;
+    rdfs:label "involves quality" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:Quality ;
+    owl:inverseOf frodo:isQualityInvolvedIn .
+
+owl:Thing fred_pos:boxerpos fred_pos:n .
+
+
+Created file view_graph/Whatisaparameterthatrepresentsthequalityofwaterbodies?.pdf

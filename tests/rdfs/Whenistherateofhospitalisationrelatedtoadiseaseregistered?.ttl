@@ -1,0 +1,105 @@
+----- OBTAINED ONTOLOGY -----
+@prefix dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> .
+@prefix fred_pos: <http://www.ontologydesignpatterns.org/ont/fred/pos.owl#> .
+@prefix fred_quantifiers: <http://www.ontologydesignpatterns.org/ont/fred/quantifiers.owl#> .
+@prefix frodo: <https://w3id.org/stlab/ontology/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vn_data: <http://www.ontologydesignpatterns.org/ont/vn/abox/role/> .
+
+dul:associatedWith a owl:ObjectProperty .
+
+fred_pos:boxerpos a owl:ObjectProperty .
+
+fred_quantifiers:hasDeterminer a owl:ObjectProperty .
+
+vn_data:Theme a owl:ObjectProperty .
+
+rdfs:subClassOf a owl:ObjectProperty .
+
+owl:equivalentClass a owl:ObjectProperty .
+
+frodo:Relate a owl:Class ;
+    fred_pos:boxerpos fred_pos:a .
+
+frodo:Rate a owl:Class ;
+    fred_pos:boxerpos fred_pos:n ;
+    owl:equivalentClass <http://dbpedia.org/resource/Heart_rate> .
+
+frodo:Registering a owl:Class ;
+    rdfs:label "registering" ;
+    fred_pos:boxerpos fred_pos:v ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:onProperty frodo:involvesDisease ;
+            owl:someValuesFrom frodo:involvesDisease ],
+        dul:Event ;
+    owl:equivalentClass <http://www.ontologydesignpatterns.org/ont/vn/data/Register_54010100> .
+
+frodo:Unit_of_time a owl:Class ;
+    fred_pos:boxerpos fred_pos:n .
+
+frodo:hospitalisation_1 a frodo:Hospitalisation ;
+    frodo:isRateOfHospitalisationOf frodo:rate_1 .
+
+frodo:isDiseaseInvolvedIn a owl:ObjectProperty ;
+    rdfs:label "is disease involved in" ;
+    rdfs:domain frodo:Disease ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:involvesDisease .
+
+frodo:isRateOfHospitalisationOf a owl:ObjectProperty ;
+    rdfs:label "is rate of hospitalisation of" ;
+    rdfs:domain frodo:Hospitalisation ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:rateOfHospitalisation .
+
+frodo:isRelateToDiseaseOf a owl:ObjectProperty ;
+    rdfs:label "is relate to disease of" ;
+    rdfs:domain frodo:Disease ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:relateToDisease .
+
+frodo:rateOfHospitalisation a owl:ObjectProperty ;
+    rdfs:label "rate of hospitalisation" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:Hospitalisation ;
+    owl:inverseOf frodo:isRateOfHospitalisationOf .
+
+frodo:register_1 a frodo:Registering ;
+    frodo:involvesDisease frodo:disease_1 .
+
+frodo:relateToDisease a owl:ObjectProperty ;
+    rdfs:label "relate to disease" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:Disease ;
+    owl:inverseOf frodo:isRelateToDiseaseOf .
+
+frodo:unit_of_time_1 a frodo:Unit_of_time .
+
+frodo:disease_1 a frodo:Disease ;
+    fred_quantifiers:hasDeterminer fred_quantifiers:a ;
+    frodo:isDiseaseInvolvedIn frodo:register_1 ;
+    frodo:isRelateToDiseaseOf frodo:rate_1 .
+
+frodo:rate_1 a frodo:Rate ;
+    dul:associatedWith frodo:unit_of_time_1 ;
+    fred_quantifiers:hasDeterminer fred_quantifiers:the ;
+    frodo:rateOfHospitalisation frodo:hospitalisation_1 ;
+    frodo:relateToDisease frodo:disease_1 .
+
+frodo:Hospitalisation a owl:Class ;
+    fred_pos:boxerpos fred_pos:n ;
+    owl:equivalentClass <http://dbpedia.org/resource/Inpatient_care> .
+
+frodo:involvesDisease a owl:ObjectProperty ;
+    rdfs:label "involves disease" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:Disease ;
+    owl:inverseOf frodo:isDiseaseInvolvedIn .
+
+frodo:Disease a owl:Class ;
+    fred_pos:boxerpos fred_pos:n ;
+    owl:equivalentClass <http://dbpedia.org/resource/Disease> .
+
+
+Created file view_graph/Whenistherateofhospitalisationrelatedtoadiseaseregistered?.pdf

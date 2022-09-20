@@ -1,0 +1,5 @@
+@prefix owlunit: <https://w3id.org/OWLunit/ontology/> .
+@prefix ex: <https://w3id.org/OWLunit/examples/> .
+
+ex:Whatarethecontaminatedsitesinageographicalarearecordedintime.ttl a owlunit:AnnotationVerification ;
+	owlunit:testsOntology owlunit: .
