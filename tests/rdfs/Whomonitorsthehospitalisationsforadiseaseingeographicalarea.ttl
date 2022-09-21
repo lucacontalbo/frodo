@@ -4,7 +4,6 @@
 @prefix frodo: <https://w3id.org/stlab/ontology/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix vn_data: <http://www.ontologydesignpatterns.org/ont/vn/abox/role/> .
 
 dul:hasQuality a owl:ObjectProperty .
 
@@ -13,12 +12,6 @@ fred_pos:boxerpos a owl:ObjectProperty .
 fred_quantifiers:hasDeterminer a owl:ObjectProperty .
 
 fred_quantifiers:hasQuantifier a owl:ObjectProperty .
-
-vn_data:Agent a owl:ObjectProperty .
-
-vn_data:Location a owl:ObjectProperty .
-
-vn_data:Theme a owl:ObjectProperty .
 
 rdfs:subClassOf a owl:ObjectProperty .
 
@@ -31,18 +24,18 @@ frodo:Geographical a owl:Class ;
     fred_pos:boxerpos fred_pos:a ;
     rdfs:subClassOf dul:Quality .
 
-frodo:Hospitalisation a owl:Class ;
-    fred_pos:boxerpos fred_pos:n .
-
 frodo:Monitoring a owl:Class ;
     rdfs:label "monitoring" ;
     fred_pos:boxerpos fred_pos:v ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:onProperty frodo:involvesDisease ;
-            owl:someValuesFrom frodo:involvesDisease ],
-        [ a owl:Restriction ;
             owl:onProperty frodo:involvesPerson ;
             owl:someValuesFrom frodo:involvesPerson ],
+        [ a owl:Restriction ;
+            owl:onProperty frodo:involvesHospitalisation ;
+            owl:someValuesFrom frodo:involvesHospitalisation ],
+        [ a owl:Restriction ;
+            owl:onProperty frodo:involvesDisease ;
+            owl:someValuesFrom frodo:involvesDisease ],
         dul:Event ;
     owl:equivalentClass <http://www.ontologydesignpatterns.org/ont/vn/data/Monitor_35040000> .
 
@@ -55,7 +48,8 @@ frodo:disease_1 a frodo:Disease ;
 
 frodo:hospitalisation_1 a frodo:Hospitalisation ;
     fred_quantifiers:hasDeterminer fred_quantifiers:the ;
-    fred_quantifiers:hasQuantifier fred_quantifiers:multiple .
+    fred_quantifiers:hasQuantifier fred_quantifiers:multiple ;
+    frodo:isHospitalisationInvolvedIn frodo:monitor_1 .
 
 frodo:inGeographicalArea a owl:ObjectProperty ;
     rdfs:label "in geographical area" ;
@@ -68,6 +62,12 @@ frodo:isDiseaseInvolvedIn a owl:ObjectProperty ;
     rdfs:domain frodo:Disease ;
     rdfs:range owl:Thing ;
     owl:inverseOf frodo:involvesDisease .
+
+frodo:isHospitalisationInvolvedIn a owl:ObjectProperty ;
+    rdfs:label "is hospitalisation involved in" ;
+    rdfs:domain frodo:Hospitalisation ;
+    rdfs:range owl:Thing ;
+    owl:inverseOf frodo:involvesHospitalisation .
 
 frodo:isInGeographicalAreaOf a owl:ObjectProperty ;
     rdfs:label "is in geographical area of" ;
@@ -91,6 +91,9 @@ frodo:GeographicalArea a owl:Class ;
     dul:hasQuality frodo:Geographical ;
     rdfs:subClassOf frodo:Area .
 
+frodo:Hospitalisation a owl:Class ;
+    fred_pos:boxerpos fred_pos:n .
+
 frodo:Person a owl:Class ;
     fred_pos:boxerpos fred_pos:n .
 
@@ -100,6 +103,12 @@ frodo:involvesDisease a owl:ObjectProperty ;
     rdfs:range frodo:Disease ;
     owl:inverseOf frodo:isDiseaseInvolvedIn .
 
+frodo:involvesHospitalisation a owl:ObjectProperty ;
+    rdfs:label "involves hospitalisation" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range frodo:Hospitalisation ;
+    owl:inverseOf frodo:isHospitalisationInvolvedIn .
+
 frodo:involvesPerson a owl:ObjectProperty ;
     rdfs:label "involves person" ;
     rdfs:domain owl:Thing ;
@@ -107,7 +116,7 @@ frodo:involvesPerson a owl:ObjectProperty ;
     owl:inverseOf frodo:isPersonInvolvedIn .
 
 frodo:monitor_1 a frodo:Monitoring ;
-    vn_data:Location frodo:hospitalisation_1 ;
     frodo:inGeographicalArea frodo:area_1 ;
     frodo:involvesDisease frodo:disease_1 ;
+    frodo:involvesHospitalisation frodo:hospitalisation_1 ;
     frodo:involvesPerson frodo:person_1 .

@@ -4,7 +4,6 @@
 @prefix frodo: <https://w3id.org/stlab/ontology/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix vn_data: <http://www.ontologydesignpatterns.org/ont/vn/abox/role/> .
 
 dul:hasQuality a owl:ObjectProperty .
 
@@ -13,10 +12,6 @@ fred_pos:boxerpos a owl:ObjectProperty .
 fred_quantifiers:hasDeterminer a owl:ObjectProperty .
 
 fred_quantifiers:hasQuantifier a owl:ObjectProperty .
-
-vn_data:Destination a owl:ObjectProperty .
-
-vn_data:Theme a owl:ObjectProperty .
 
 rdfs:subClassOf a owl:ObjectProperty .
 

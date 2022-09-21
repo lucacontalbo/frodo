@@ -1,0 +1,89 @@
+--- What are the contaminated sites in a geographical area recorded in time ---
+
+Metrics for Ontology(OntologyID(Anonymous-2)) [Axioms: 72 Logical Axioms: 45]
+The redundancy of the set: 0.24242424242424243
+The redundancy of the set: 0.24242424242
+The encapsulation is 0.8356481481481481
+The coupling is 0.0
+Independent? false
+Appropriateness 0.19107019345483284
+The intramodule distance is 4.0
+The attribute richness is 0.26666666666666666
+The inheritance richness is 1.0
+The cohesion is 0.005698005698005698
+The atomic size is 2.888888888888889
+
+--- What is a parameter that represents the quality of water bodies  ---
+
+Metrics for Ontology(OntologyID(Anonymous-5)) [Axioms: 69 Logical Axioms: 44]
+The redundancy of the set: 0.24242424242424243
+The redundancy of the set: 0.24242424242
+The encapsulation is 0.9227053140096618
+The coupling is 0.0
+Independent? false
+Appropriateness 0.17647201921527783
+The intramodule distance is 2.0
+The attribute richness is 0.2857142857142857
+The inheritance richness is 1.0
+The cohesion is 0.003076923076923077
+The atomic size is 2.9523809523809526
+
+--- When is the level of a chemical substance recorded in a water body  ---
+
+Metrics for Ontology(OntologyID(Anonymous-8)) [Axioms: 74 Logical Axioms: 48]
+The redundancy of the set: 0.24242424242424243
+The redundancy of the set: 0.24242424242
+The encapsulation is 0.8986486486486487
+The coupling is 0.0
+Independent? false
+Appropriateness 0.20104750847124053
+The intramodule distance is 3.0
+The attribute richness is 0.2857142857142857
+The inheritance richness is 1.0
+The cohesion is 0.005
+The atomic size is 3.1627906976744184
+
+--- When is the rate of hospitalisation related to a disease registered  ---
+
+Metrics for Ontology(OntologyID(Anonymous-11)) [Axioms: 65 Logical Axioms: 41]
+The redundancy of the set: 0.24242424242424243
+The redundancy of the set: 0.24242424242
+The encapsulation is 0.8923076923076924
+The coupling is 0.0
+Independent? false
+Appropriateness 0.1577264470356557
+The intramodule distance is 1.0
+The attribute richness is 0.15384615384615385
+The inheritance richness is 1.0
+The cohesion is 0.0018115942028985507
+The atomic size is 2.875
+
+--- Who monitors the hospitalisations for a disease in geographical area  ---
+
+Metrics for Ontology(OntologyID(Anonymous-14)) [Axioms: 80 Logical Axioms: 50]
+The redundancy of the set: 0.24242424242424243
+The redundancy of the set: 0.24242424242
+The encapsulation is 0.8520833333333333
+The coupling is 0.0
+Independent? false
+Appropriateness 0.23208660251050173
+The intramodule distance is 3.0
+The attribute richness is 0.42857142857142855
+The inheritance richness is 1.0
+The cohesion is 0.003968253968253968
+The atomic size is 3.0869565217391304
+
+--- Who records the amount of microbiological substances in surface waters in time  ---
+
+Metrics for Ontology(OntologyID(Anonymous-17)) [Axioms: 102 Logical Axioms: 64]
+The redundancy of the set: 0.24242424242424243
+The redundancy of the set: 0.24242424242
+The encapsulation is 0.8872549019607843
+The coupling is 0.0
+Independent? false
+Appropriateness 0.35749036876501195
+The intramodule distance is 3.0
+The attribute richness is 0.375
+The inheritance richness is 1.0
+The cohesion is 0.002840909090909091
+The atomic size is 3.309090909090909
